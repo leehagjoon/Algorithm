@@ -1,10 +1,10 @@
 # [level 0] 대소문자 바꿔서 출력하기 - 181949 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/181949) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/181949?language=python3) 
 
 ### 성능 요약
 
-메모리: 66.1 MB, 시간: 149.15 ms
+메모리: 7.39 MB, 시간: 11.93 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 2월 2일 19:27:51
+2026년 03월 18일 18:58:07
 
 ### 문제 설명
 
