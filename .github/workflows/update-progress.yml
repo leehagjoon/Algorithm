@@ -1,4 +1,4 @@
-name: Update Algorithm Progress
+name: Update and Organize Algorithm Repository
 
 on:
   push:
@@ -6,23 +6,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-readme:
+  organize-and-update:
     runs-on: ubuntu-latest
-    # 권한 설정 (Push를 위해 필요할 수 있음)
     permissions:
       contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Organize Folders (Move to Subdirectories)
+        run: |
+          # 1. 'HackerRank'가 포함된 폴더 중 이미 HackerRank/ 안에 있지 않은 폴더들을 찾아서 이동
+          # 예: "1234-problem-HackerRank" -> "HackerRank/1234-problem-HackerRank"
+          mkdir -p HackerRank
+          find . -maxdepth 1 -type d -iname "*HackerRank*" ! -name "HackerRank" -exec mv {} HackerRank/ \;
+
+          # 2. leetcode 관련 폴더도 정리하고 싶다면 아래 주석 해제
+          # mkdir -p leetcode
+          # find . -maxdepth 1 -type d -iname "*leetcode*" ! -name "leetcode" -exec mv {} leetcode/ \;
 
       - name: Count solved problems
+        id: counts
         run: |
-          # -ipath를 사용하여 대소문자 구분 없이 'hackerrank'가 들어간 모든 폴더 내 파일을 찾습니다.
-          HR=$(find . -type f -ipath "*hackerrank*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
-          LC=$(find . -type f -ipath "*leetcode*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
-          BJ=$(find . -type f -path "*백준*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
-          PG=$(find . -type f -path "*프로그래머스*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          HR=$(find HackerRank -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          LC=$(find leetcode -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          BJ=$(find 백준 -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          PG=$(find 프로그래머스 -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
 
           echo "HR=$HR" >> $GITHUB_ENV
           echo "LC=$LC" >> $GITHUB_ENV
@@ -31,20 +43,20 @@ jobs:
 
       - name: Update README.md
         run: |
-          # sed 명령어에서 공백 처리를 더 유연하게 하기 위해 [[:space:]]* 를 활용합니다.
-          sed -i "s/| LeetCode[[:space:]]*| .*/| LeetCode    | $LC      |/" README.md
           sed -i "s/| HackerRank[[:space:]]*| .*/| HackerRank  | $HR      |/" README.md
+          sed -i "s/| LeetCode[[:space:]]*| .*/| LeetCode    | $LC      |/" README.md
           sed -i "s/| Baekjoon[[:space:]]*| .*/| Baekjoon    | $BJ      |/" README.md
           sed -i "s/| Programmers[[:space:]]*| .*/| Programmers | $PG      |/" README.md
 
-      - name: Commit changes
+      - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add README.md
-          # 변경사항이 없을 때 에러로 중단되지 않도록 처리
-          git diff --quiet && git diff --staged --quiet || git commit -m "📊 Update solved count"
-
-      - name: Push changes
-        run: |
-          git push
+          
+          git add .
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "📂 Organize folders and 📊 Update solved count"
+            git push
+          else
+            echo "No changes to commit"
+          fi
