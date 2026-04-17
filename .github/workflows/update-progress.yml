@@ -8,6 +8,9 @@ on:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+    # 권한 설정 (Push를 위해 필요할 수 있음)
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -15,10 +18,11 @@ jobs:
 
       - name: Count solved problems
         run: |
-          HR=$(find HackerRank -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) 2>/dev/null | wc -l)
-          LC=$(find leetcode -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) 2>/dev/null | wc -l)
-          BJ=$(find 백준 -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) 2>/dev/null | wc -l)
-          PG=$(find 프로그래머스 -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) 2>/dev/null | wc -l)
+          # -ipath를 사용하여 대소문자 구분 없이 'hackerrank'가 들어간 모든 폴더 내 파일을 찾습니다.
+          HR=$(find . -type f -ipath "*hackerrank*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          LC=$(find . -type f -ipath "*leetcode*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          BJ=$(find . -type f -path "*백준*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          PG=$(find . -type f -path "*프로그래머스*" \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
 
           echo "HR=$HR" >> $GITHUB_ENV
           echo "LC=$LC" >> $GITHUB_ENV
@@ -27,19 +31,19 @@ jobs:
 
       - name: Update README.md
         run: |
-          sed -i "s/| LeetCode    | .*/| LeetCode    | $LC      |/" README.md
-          sed -i "s/| HackerRank  | .*/| HackerRank  | $HR      |/" README.md
-          sed -i "s/| Baekjoon    | .*/| Baekjoon    | $BJ      |/" README.md
-          sed -i "s/| Programmers | .*/| Programmers | $PG      |/" README.md
+          # sed 명령어에서 공백 처리를 더 유연하게 하기 위해 [[:space:]]* 를 활용합니다.
+          sed -i "s/| LeetCode[[:space:]]*| .*/| LeetCode    | $LC      |/" README.md
+          sed -i "s/| HackerRank[[:space:]]*| .*/| HackerRank  | $HR      |/" README.md
+          sed -i "s/| Baekjoon[[:space:]]*| .*/| Baekjoon    | $BJ      |/" README.md
+          sed -i "s/| Programmers[[:space:]]*| .*/| Programmers | $PG      |/" README.md
 
       - name: Commit changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-
           git add README.md
-
-          git commit -m "📊 Update solved count" || echo "No changes to commit"
+          # 변경사항이 없을 때 에러로 중단되지 않도록 처리
+          git diff --quiet && git diff --staged --quiet || git commit -m "📊 Update solved count"
 
       - name: Push changes
         run: |
