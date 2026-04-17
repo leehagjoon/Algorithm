@@ -1,0 +1,45 @@
+name: Update Algorithm Progress
+
+on:
+  push:
+    paths:
+      - 'sql/**'
+      - 'leetcode/**'
+      - 'baekjoon/**'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Count SQL files
+        run: |
+          SQL_COUNT=$(find sql -name "*.sql" 2>/dev/null | wc -l)
+          echo "SQL_COUNT=$SQL_COUNT" >> $GITHUB_ENV
+
+      - name: Count LeetCode files
+        run: |
+          LC_COUNT=$(find leetcode -type f \( -name "*.java" -o -name "*.py" -o -name "*.sql" \) 2>/dev/null | wc -l)
+          echo "LC_COUNT=$LC_COUNT" >> $GITHUB_ENV
+
+      - name: Count Baekjoon files
+        run: |
+          BJ_COUNT=$(find baekjoon -type f \( -name "*.java" -o -name "*.py" -o -name "*.cpp" \) 2>/dev/null | wc -l)
+          echo "BJ_COUNT=$BJ_COUNT" >> $GITHUB_ENV
+
+      - name: Update README
+        run: |
+          sed -i "s/| SQL *| *[0-9]*/| SQL        | $SQL_COUNT/" README.md
+          sed -i "s/| LeetCode *| *[0-9]*/| LeetCode   | $LC_COUNT/" README.md
+          sed -i "s/| Baekjoon *| *[0-9]*/| Baekjoon   | $BJ_COUNT/" README.md
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add README.md
+          git commit -m "auto: update algorithm progress" || echo "No changes"
+          git push
