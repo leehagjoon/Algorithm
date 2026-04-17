@@ -5,9 +5,9 @@
 | Platform    | Solved |
 | ----------- | ------ |
 | LeetCode    | 0      |
-| HackerRank  | 0      |
-| Baekjoon    | 0      |
-| Programmers | 0      |
+| HackerRank  | 2      |
+| Baekjoon    | 21      |
+| Programmers | 145      |
 
 ---
 
