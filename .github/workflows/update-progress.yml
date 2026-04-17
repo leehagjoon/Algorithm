@@ -22,17 +22,17 @@ jobs:
 
       - name: Count HackerRank
         run: |
-          HR=$(find hackerrank -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) 2>/dev/null | wc -l)
+          HR=$(find HackerRank -type f | wc -l)
           echo "HR=$HR" >> $GITHUB_ENV
 
       - name: Count Baekjoon
         run: |
-          BJ=$(find baekjoon -type f \( -name "*.java" -o -name "*.py" -o -name "*.cpp" \) 2>/dev/null | wc -l)
+          BJ=$(find 백준 -type f | wc -l)
           echo "BJ=$BJ" >> $GITHUB_ENV
 
       - name: Count Programmers
         run: |
-          PG=$(find programmers -type f \( -name "*.java" -o -name "*.py" -o -name "*.sql" \) 2>/dev/null | wc -l)
+          PG=$(find 프로그래머스 -type f | wc -l)
           echo "PG=$PG" >> $GITHUB_ENV
 
       - name: Update README
