@@ -3,43 +3,49 @@ name: Update Algorithm Progress
 on:
   push:
     paths:
-      - 'sql/**'
       - 'leetcode/**'
-      - 'baekjoon/**'
+      - 'HackerRank/**'
+      - '백준/**'
+      - '프로그래머스/**'
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Count SQL files
+      - name: Count LeetCode
         run: |
-          SQL_COUNT=$(find sql -name "*.sql" 2>/dev/null | wc -l)
-          echo "SQL_COUNT=$SQL_COUNT" >> $GITHUB_ENV
+          LC=$(find leetcode -type f \( -name "*.java" -o -name "*.py" -o -name "*.sql" \) 2>/dev/null | wc -l)
+          echo "LC=$LC" >> $GITHUB_ENV
 
-      - name: Count LeetCode files
+      - name: Count HackerRank
         run: |
-          LC_COUNT=$(find leetcode -type f \( -name "*.java" -o -name "*.py" -o -name "*.sql" \) 2>/dev/null | wc -l)
-          echo "LC_COUNT=$LC_COUNT" >> $GITHUB_ENV
+          HR=$(find hackerrank -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) 2>/dev/null | wc -l)
+          echo "HR=$HR" >> $GITHUB_ENV
 
-      - name: Count Baekjoon files
+      - name: Count Baekjoon
         run: |
-          BJ_COUNT=$(find baekjoon -type f \( -name "*.java" -o -name "*.py" -o -name "*.cpp" \) 2>/dev/null | wc -l)
-          echo "BJ_COUNT=$BJ_COUNT" >> $GITHUB_ENV
+          BJ=$(find baekjoon -type f \( -name "*.java" -o -name "*.py" -o -name "*.cpp" \) 2>/dev/null | wc -l)
+          echo "BJ=$BJ" >> $GITHUB_ENV
+
+      - name: Count Programmers
+        run: |
+          PG=$(find programmers -type f \( -name "*.java" -o -name "*.py" -o -name "*.sql" \) 2>/dev/null | wc -l)
+          echo "PG=$PG" >> $GITHUB_ENV
 
       - name: Update README
         run: |
-          sed -i "s/| SQL *| *[0-9]*/| SQL        | $SQL_COUNT/" README.md
-          sed -i "s/| LeetCode *| *[0-9]*/| LeetCode   | $LC_COUNT/" README.md
-          sed -i "s/| Baekjoon *| *[0-9]*/| Baekjoon   | $BJ_COUNT/" README.md
+          sed -i "s/| LeetCode *| *[0-9]*/| LeetCode     | $LC/" README.md
+          sed -i "s/| HackerRank *| *[0-9]*/| HackerRank   | $HR/" README.md
+          sed -i "s/| Baekjoon *| *[0-9]*/| Baekjoon     | $BJ/" README.md
+          sed -i "s/| Programmers *| *[0-9]*/| Programmers  | $PG/" README.md
 
-      - name: Commit changes
+      - name: Commit
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add README.md
-          git commit -m "auto: update algorithm progress" || echo "No changes"
+          git commit -m "auto: update progress" || echo "No changes"
           git push
