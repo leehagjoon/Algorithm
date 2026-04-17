@@ -31,10 +31,27 @@ jobs:
       - name: Count solved problems
         id: counts
         run: |
-          HR=$(find HackerRank -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
-          LC=$(find leetcode -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
-          BJ=$(find 백준 -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
-          PG=$(find 프로그래머스 -type f \( -name "*.sql" -o -name "*.java" -o -name "*.py" \) | wc -l)
+          # 1. HackerRank 폴더가 있는지 확인 후 카운트 (없으면 0)
+          if [ -d "HackerRank" ]; then
+            # -iname으로 대소문자 무시, 하위 폴더 전체 검색
+            HR=$(find HackerRank -type f \( -iname "*.sql" -o -iname "*.java" -o -iname "*.py" \) | wc -l)
+          else
+            HR=0
+          fi
+
+          # 2. leetcode 폴더 확인 및 카운트
+          if [ -d "leetcode" ]; then
+            LC=$(find leetcode -type f \( -iname "*.sql" -o -iname "*.java" -o -iname "*.py" \) | wc -l)
+          else
+            LC=0
+          fi
+
+          # 3. 백준 및 프로그래머스 (한글 폴더명 대응)
+          BJ=$(find . -type f -path "*백준*" \( -iname "*.sql" -o -iname "*.java" -o -iname "*.py" \) | wc -l)
+          PG=$(find . -type f -path "*프로그래머스*" \( -iname "*.sql" -o -iname "*.java" -o -iname "*.py" \) | wc -l)
+
+          # 디버깅용 출력 (Actions 로그에서 확인 가능)
+          echo "Final Counts -> HR: $HR, LC: $LC, BJ: $BJ, PG: $PG"
 
           echo "HR=$HR" >> $GITHUB_ENV
           echo "LC=$LC" >> $GITHUB_ENV
