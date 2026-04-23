@@ -7,7 +7,7 @@
 | LeetCode    | 0      |
 | HackerRank  | 9      |
 | Baekjoon    | 21      |
-| Programmers | 148      |
+| Programmers | 149      |
 
 ---
 
